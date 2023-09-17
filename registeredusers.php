@@ -3,9 +3,21 @@ include('includes/header.php');
 include('includes/topbar.php');
 include('includes/sidebar.php');
 include('config.php');
-$fetch = "SELECT * FROM `Syed` where status = '1'";
+
+$limit = 4;
+if(isset($_GET['page'])){
+  $get_page = $_GET['page'];
+}else{
+  $get_page = 1;
+}
+
+$offset = ($get_page - 1) * $limit;
+
+$fetch = "SELECT * FROM `Syed` where status = '1' order by id desc limit {$offset}, {$limit}";
 
 $data = mysqli_query($conn, $fetch);
+
+
 
 ?>
 <!-- Content Wrapper. Contains page content -->
@@ -90,7 +102,7 @@ $data = mysqli_query($conn, $fetch);
 
     <!-- /.card-header -->
     <div class="card-body">
-      <table id="example1" class="table table-dark table-bordered text-center table-striped">
+      <table id="example1" class="table table-primary table-bordered  text-center table-striped">
         <thead>
           <tr>
             <th>Id</th>
@@ -130,8 +142,34 @@ $data = mysqli_query($conn, $fetch);
           ?>
         </tbody>
       </table>
+      <div class="container mt-4">
+
+
+          <?php
+          $paginationCode = "SELECT * from `syed`";
+          $result1 = mysqli_query($conn, $paginationCode);
+          if($result1){
+            if(mysqli_num_rows($result1) > 0){
+              $total_records = mysqli_num_rows($result1);
+              $total_pages = ceil($total_records / $limit);
+              echo '<ul class="pagination">';
+              for($i = 1; $i <= $total_pages; $i++){
+                
+                $active = $i == $get_page? "active" : "";
+              echo " <li class='page-item {$active}'>
+              <a class='page-link' href='registeredusers.php?page={$i}'>{$i}</a></li>"; 
+              }
+              echo '</ul>';
+            }
+          }
+          
+          ?>
+      
+  </div>
+
     </div>
   </div>
+  
 </div>
 
 <?php

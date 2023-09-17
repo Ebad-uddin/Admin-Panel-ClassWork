@@ -12,6 +12,8 @@ if(isset($_POST['addpro'])){
     $pimage = $_FILES['pimage']['name'];
     $pimage_tmp = $_FILES['pimage']['tmp_name'];
     $pimage_size = $_FILES['pimage']['size'];
+   
+
 
     $check_product = "SELECT * from products where pname = '$pname'";
     $result = mysqli_query($conn, $check_product);
@@ -135,7 +137,14 @@ if(isset($_POST['addpro'])){
 
     <!-- /.card-header -->
     <?php
-    $fetching_pro = "SELECT * from products as p INNER JOIN category as c on p.pcategory = c.Cid";
+     $limit = 4;
+     if(isset($_GET['pageno'])){
+      $getpageno = $_GET['pageno'];
+     }else{
+       $getpageno = 1;
+     }
+     $offset = ($getpageno - 1) * $limit;
+    $fetching_pro = "SELECT * from products as p INNER JOIN category as c on p.pcategory = c.Cid  order by pid desc limit {$offset}, {$limit}";
     $pro_result = mysqli_query($conn, $fetching_pro);
     if (mysqli_num_rows($pro_result) > 0) {
        
@@ -149,6 +158,7 @@ if(isset($_POST['addpro'])){
         <thead>
           <tr>
            
+            <th>ID</th>
             <th>Name</th>
             <th>Category</th>
             <th>Description</th>
@@ -162,6 +172,9 @@ if(isset($_POST['addpro'])){
 
             ?>
             <tr>
+              <td>
+                <?php echo $pro_data['pid'] ?>
+              </td>
               <td>
                 <?php echo $pro_data['pname'] ?>
               </td>
@@ -187,9 +200,42 @@ if(isset($_POST['addpro'])){
           ?>
         </tbody>
       </table>
+      <?php
+      $pagination = "SELECT * from `products`";
+      $product = mysqli_query($conn, $pagination);
+
+      if(mysqli_num_rows($product) > 0){
+        $total_records = mysqli_num_rows($product);
+        $pages = ceil($total_records / $limit);
+        echo '  <ul class="pagination">';
+        if($getpageno > 1){
+
+          echo "<li class='page-item'><a class='page-link' href='addproduct.php?.($getpageno - 1).''> Prev </a></li>";
+        }
+        for($i = 1; $i <= $pages; $i++){
+          $active = $i == $getpageno? "active" : "";
+          echo " <li class='page-item'>
+          <a class='page-link {$active}' href='addproduct.php?pageno={$i}'>{$i}</a>
+          </li>";
+        }
+        if($pages > $getpageno){
+  
+          echo "<li class='page-item'><a class='page-link' href='addproduct.php?.($getpageno + 1).''> next </a></li>";
+        }
+      }
+      
+      
+      ?>
+
+
+
+
+
+    
     </div>
   </div>
 </div>
+
 
 <?php
 include('includes/footer.php');
