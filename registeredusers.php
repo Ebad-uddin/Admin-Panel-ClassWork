@@ -3,19 +3,20 @@ include('includes/header.php');
 include('includes/topbar.php');
 include('includes/sidebar.php');
 include('config.php');
-
-$limit = 4;
+  
+$limit = 2;
 if(isset($_GET['page'])){
-  $get_page = $_GET['page'];
+  
+  $getpgno = $_GET['page'];
 }else{
-  $get_page = 1;
+  $getpgno = 1;
 }
+$offset = ($getpgno - 1) * $limit;
 
-$offset = ($get_page - 1) * $limit;
-
-$fetch = "SELECT * FROM `Syed` where status = '1' order by id desc limit {$offset}, {$limit}";
+$fetch = "SELECT * FROM `Syed` where status = '1' limit {$offset}, {$limit}";
 
 $data = mysqli_query($conn, $fetch);
+
 
 
 
@@ -143,27 +144,37 @@ $data = mysqli_query($conn, $fetch);
         </tbody>
       </table>
       <div class="container mt-4">
+        
 
+      <?php
+        $fetchpage = "SELECT * from syed";
+        $query = mysqli_query($conn, $fetchpage);
+        
+          if(mysqli_num_rows($query) > 0){
+            $totalRecords = mysqli_num_rows($query);
+            $totalpages = ceil($totalRecords / $limit);
+            echo '<ul class="pagination">';
+            if($getpgno > 1){
+              echo '<li class="page-item"><a class="page-link" href="registeredusers.php?page='.($getpgno - 1).'">prev</a></li>';
 
-          <?php
-          $paginationCode = "SELECT * from `syed`";
-          $result1 = mysqli_query($conn, $paginationCode);
-          if($result1){
-            if(mysqli_num_rows($result1) > 0){
-              $total_records = mysqli_num_rows($result1);
-              $total_pages = ceil($total_records / $limit);
-              echo '<ul class="pagination">';
-              for($i = 1; $i <= $total_pages; $i++){
-                
-                $active = $i == $get_page? "active" : "";
-              echo " <li class='page-item {$active}'>
-              <a class='page-link' href='registeredusers.php?page={$i}'>{$i}</a></li>"; 
-              }
-              echo '</ul>';
             }
+            for($i = 1; $i <= $totalpages; $i++){
+              $active = $i == $getpgno? "active" : "";
+              echo '<li class="'.$active.' page-item"><a class="page-link" href="registeredusers.php?page='.$i.'">'.$i.'</a></li>';
+            }
+            if($getpgno < $totalpages){
+              echo '<li class="page-item"><a class="page-link" href="registeredusers.php?page='.($getpgno + 1).'">next</a></li>';
+
+            }
+
           }
-          
-          ?>
+        
+      
+      
+      ?>
+
+      
+         
       
   </div>
 
